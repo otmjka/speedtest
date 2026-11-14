@@ -39,6 +39,16 @@ Downloaded:   104.86 MB
 Speed:        38.69 Mbit/s (4.84 MB/s)
 ```
 
+## Какой URL взять
+
+| URL                                                                        | Размер     | Когда                                               |
+| -------------------------------------------------------------------------- | ---------- | --------------------------------------------------- |
+| `https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg` | 14.68 MB   | тяжёлая картинка; Wikimedia может ответить HTTP 429 |
+| `https://images-assets.nasa.gov/image/PIA12348/PIA12348~orig.jpg`          | 3.84 MB    | запасная картинка поменьше                          |
+| `https://speed.cloudflare.com/__down?bytes=25000000`                       | `?bytes=N` | размер подбирается под канал                        |
+| `https://nbg1-speed.hetzner.com/100MB.bin`                                 | 104.86 MB  | быстрый канал, когда 15 MB качаются слишком быстро  |
+| `https://proof.ovh.net/files/10Mb.dat`                                     | 10.49 MB   | ещё один тестовый сервер                            |
+
 ## Прогресс
 
 Пока идёт запрос, в stderr — строка, перерисовываемая на месте:
