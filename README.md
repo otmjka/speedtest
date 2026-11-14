@@ -94,6 +94,8 @@ npm run build     # esbuild → release/speedtest.js (один файл)
 
 Перед каждым коммитом husky запускает `npm run check` (хук ставится сам при `npm ci`).
 
-Релиз собирается сам: каждый push в `main` (мерж PR) → `npm run check` → GitHub Release `v0.1.<номер прогона>` с `speedtest.js`. `release/` в git не хранится.
+CI (`.github/workflows/ci.yml`) на каждый push и PR: `npm run check` на Node 24, `npm test` на Node 22 и 24.
+
+Релиз собирается сам: каждый push в `main` (мерж PR) → `npm run check` → GitHub Release `v0.1.<номер прогона>` с `speedtest.js`. Push, где поменялись только `openspec/` и `.md`, релиз не делает. `release/` в git не хранится.
 
 Точка входа — `src/speedtest.ts`, модули — `src/lib/`, тесты — в `__tests__/` рядом с кодом, тестовый HTTP-сервер — `src/test-utils/`.
