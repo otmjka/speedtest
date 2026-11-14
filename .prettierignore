@@ -1,0 +1,6 @@
+release
+dist-test
+node_modules
+openspec
+.claude
+package-lock.json
