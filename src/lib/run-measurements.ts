@@ -1,13 +1,15 @@
 import { measureRequest } from './measure-request/index.js';
-import type { Measurement, MeasureOptions } from './measure-request/index.js';
+import type { DownloadProgress, Measurement, MeasureOptions } from './measure-request/index.js';
 
 export const REQUEST_COUNT = 10;
 
-export interface RunOptions extends MeasureOptions {
+export interface RunOptions extends Omit<MeasureOptions, 'onProgress'> {
   /** Сколько запросов. По умолчанию `REQUEST_COUNT`. */
   count?: number;
   /** Вызывается после каждого успешного запроса; `index` с 1. */
   onResult?: (index: number, measurement: Measurement) => void;
+  /** Прогресс текущего запроса; приходит до его `onResult`. */
+  onProgress?: (index: number, progress: DownloadProgress) => void;
 }
 
 /** Запрос номер `index` (с 1) упал; `reason` — причина одной строкой. */
@@ -28,11 +30,18 @@ export class RequestFailedError extends Error {
  * @throws RequestFailedError на первом упавшем запросе; остальные не выполняются.
  */
 export async function runMeasurements(url: URL, options: RunOptions = {}): Promise<Measurement[]> {
-  const { count = REQUEST_COUNT, onResult, ...measureOptions } = options;
+  const { count = REQUEST_COUNT, onResult, onProgress, ...measureOptions } = options;
   const results: Measurement[] = [];
 
   for (let index = 1; index <= count; index += 1) {
-    const measurement = await measureRequest(url, measureOptions).catch((error: unknown) => {
+    const measurement = await measureRequest(url, {
+      ...measureOptions,
+      ...(onProgress && {
+        onProgress: (progress: DownloadProgress) => {
+          onProgress(index, progress);
+        },
+      }),
+    }).catch((error: unknown) => {
       const reason = error instanceof Error ? error.message : String(error);
       throw new RequestFailedError(index, reason, { cause: error });
     });

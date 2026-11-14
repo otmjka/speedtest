@@ -5,6 +5,7 @@ import { after, before, describe, it } from 'node:test';
 import { startTestServer } from '../../../test-utils/start-test-server.js';
 import type { TestServer } from '../../../test-utils/start-test-server.js';
 import { measureRequest } from '../index.js';
+import type { DownloadProgress } from '../index.js';
 
 const IDLE_TIMEOUT_MS = 200;
 
@@ -38,6 +39,22 @@ describe('measureRequest', () => {
 
   it('chunked без Content-Length', async () => {
     assert.equal((await measure('/chunked/5000000')).bytes, 5_000_000);
+  });
+
+  it('прогресс: /bytes/N → total = N, последний received = N', async () => {
+    const seen: DownloadProgress[] = [];
+    await measureRequest(url('/bytes/1000000'), { onProgress: (p) => seen.push(p) });
+    assert.deepEqual(seen[0], { received: 0, total: 1_000_000 });
+    assert.deepEqual(seen.at(-1), { received: 1_000_000, total: 1_000_000 });
+    assert.ok(seen.every(({ total }) => total === 1_000_000));
+  });
+
+  it('прогресс: /chunked/N → total = undefined', async () => {
+    const seen: DownloadProgress[] = [];
+    await measureRequest(url('/chunked/500000'), { onProgress: (p) => seen.push(p) });
+    assert.ok(seen.length > 1);
+    assert.ok(seen.every(({ total }) => total === undefined));
+    assert.equal(seen.at(-1)?.received, 500_000);
   });
 
   it('пустое тело → 0 байт', async () => {

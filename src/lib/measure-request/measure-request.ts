@@ -1,5 +1,6 @@
 import { createIdleTimer } from './parts/create-idle-timer.js';
 import { describeError } from './parts/describe-error.js';
+import { parseContentLength } from './parts/parse-content-length.js';
 import { readBodyBytes } from './parts/read-body-bytes.js';
 import type { MeasureOptions, Measurement } from './types.js';
 
@@ -35,7 +36,14 @@ export async function measureRequest(url: URL, options: MeasureOptions = {}): Pr
       throw new Error(`HTTP ${response.status} ${response.statusText}`.trimEnd());
     }
 
-    const bytes = await readBodyBytes(response.body, timer.touch);
+    const total = parseContentLength(response.headers);
+    const { onProgress } = options;
+    onProgress?.({ received: 0, total });
+
+    const bytes = await readBodyBytes(response.body, (received) => {
+      timer.touch();
+      onProgress?.({ received, total });
+    });
 
     return { ms: performance.now() - started, bytes };
   } catch (error) {
