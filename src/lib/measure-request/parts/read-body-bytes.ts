@@ -1,7 +1,10 @@
-/** Считает байты тела по чанкам, не держа тело в памяти. `onChunk` — на каждый чанк. */
+/**
+ * Считает байты тела по чанкам, не держа тело в памяти.
+ * `onChunk` — на каждый чанк, с накопленным числом байт.
+ */
 export async function readBodyBytes(
   body: ReadableStream<Uint8Array> | null,
-  onChunk: () => void,
+  onChunk: (received: number) => void,
 ): Promise<number> {
   let bytes = 0;
 
@@ -11,7 +14,7 @@ export async function readBodyBytes(
 
   for await (const chunk of body) {
     bytes += chunk.byteLength;
-    onChunk();
+    onChunk(bytes);
   }
 
   return bytes;

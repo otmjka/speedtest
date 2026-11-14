@@ -66,13 +66,22 @@ describe('speedtest CLI', () => {
     assert.equal(result.code, 0);
     assert.equal(result.stderr, '');
     assert.equal(
-      result.stdout.match(/^Request +\d+\/10: [\d.]+ ms, 1000000 B \(1\.00 MB\)$/gm)?.length,
+      result.stdout.match(/^Request +\d+\/10: [\d.]+ ms, 1000000 B \(1\.00 MB\), [\d.]+ Mbit\/s$/gm)
+        ?.length,
       10,
     );
     assert.match(
       result.stdout,
       /Downloaded: +10\.00 MB\nSpeed: +[\d.]+ Mbit\/s \([\d.]+ MB\/s\)\n$/,
     );
+  });
+
+  it('не TTY → без прогресса: нет \\r и \\x1b ни в stdout, ни в stderr', async () => {
+    for (const path of ['/bytes/1000000', '/chunked/1000000', '/nope']) {
+      const { stdout, stderr } = await runCli(`${server.origin}${path}`);
+      const output = stdout + stderr;
+      assert.ok(!output.includes('\r') && !output.includes('\x1b'), path);
+    }
   });
 
   it('пустые ответы → 0 MB и предупреждение, exit 0', async () => {

@@ -29,6 +29,20 @@ describe('runMeasurements', () => {
     assert.equal(server.maxConcurrent, 1);
   });
 
+  it('прогресс с номером запроса, до onResult того же запроса', async () => {
+    const events: string[] = [];
+    await runMeasurements(new URL('/bytes/1000', server.origin), {
+      onProgress: (index, { received }) => events.push(`progress ${index} ${received}`),
+      onResult: (index) => events.push(`result ${index}`),
+    });
+    const expected = Array.from({ length: 10 }, (_, i) => [
+      `progress ${i + 1} 0`,
+      `progress ${i + 1} 1000`,
+      `result ${i + 1}`,
+    ]).flat();
+    assert.deepEqual(events, expected);
+  });
+
   it('500 на 3-м → стоп, сервер видел ровно 3', async () => {
     const seen: number[] = [];
     await assert.rejects(
