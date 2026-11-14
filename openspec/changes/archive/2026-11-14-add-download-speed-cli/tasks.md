@@ -24,9 +24,9 @@
 ## 5. Гейты
 
 - [x] 5.1 Сборка esbuild → `release/speedtest.js`, `release/` в `.gitignore`; проверка: `npm run check` зелёный (вкл. `build:smoke`)
-- [ ] 5.2 `.github/workflows/ci.yml`; проверка: `actionlint`, после первого пуша — зелёный прогон
+- [x] 5.2 `.github/workflows/ci.yml`; проверка: `actionlint`, после первого пуша — зелёный прогон
 - [x] 5.3 pre-commit через husky: `npm run check`; проверка: коммит с красной проверкой блокируется
-- [ ] 5.4 `.github/workflows/release.yml`: релиз при push в `main`; проверка: после мержа PR в Releases есть `speedtest.js`, `node speedtest.js --help` работает
+- [x] 5.4 `.github/workflows/release.yml`: релиз при push в `main`; проверка: после мержа PR в Releases есть `speedtest.js`, `node speedtest.js --help` работает
 
 ## 6. Доки
 
